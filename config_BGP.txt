@@ -1,0 +1,887 @@
+========R1========
+en
+conf t
+host R1-CDN
+
+int loop0
+ip add 1.1.1.1 255.255.255.255
+no sh
+
+int loop1 
+ip add 8.8.8.8 255.255.255.255
+no sh 
+
+int g0/0
+ip add 11.11.11.1 255.255.255.252
+no sh 
+
+int g0/1
+ip add 16.16.16.1 255.255.255.252
+no sh 
+
+int g0/3
+ip add 17.17.17.1 255.255.255.252 
+no sh 
+
+router bgp 100
+neigh 11.11.11.2 remote-as 200
+neigh 16.16.16.2 remote-as 600
+neigh 17.17.17.2 remote-as 400
+
+networ 1.1.1.1 mask 255.255.255.255
+networ 8.8.8.8 mask 255.255.255.255
+
+do wr mem
+
+========R2=========
+en
+conf t
+host R2-CDN
+
+int loop0
+ip add 2.2.2.2 255.255.255.255
+no sh
+
+
+int g0/0
+ip add 11.11.11.2 255.255.255.252
+no sh 
+
+int g0/1
+ip add 19.19.19.2 255.255.255.252
+no sh 
+
+int g0/3
+ip add 12.12.12.1 255.255.255.252 
+no sh 
+
+router bgp 200
+neigh 11.11.11.1 remote-as 100
+neigh 19.19.19.1 remote-as 500
+neigh 12.12.12.2 remote-as 300
+
+networ 2.2.2.2 mask 255.255.255.255
+
+do wr mem
+
+
+========R3========
+en
+conf t
+host R3-CDN
+
+int loop0
+ip add 3.3.3.3 255.255.255.255
+no sh
+
+
+int g0/3
+ip add 12.12.12.2 255.255.255.252
+no sh 
+
+int g0/0
+ip add 18.18.18.1 255.255.255.252
+no sh 
+
+int g0/2
+ip add 13.13.13.1 255.255.255.252 
+no sh 
+
+int g0/1
+ip add 20.20.20.2 255.255.255.252
+no sh
+
+router bgp 300
+neigh 12.12.12.1 remote-as 200
+neigh 18.18.18.2 remote-as 600
+neigh 13.13.13.2 remote-as 400
+neigh 20.20.20.1 remote-as 15964
+
+networ 3.3.3.3 mask 255.255.255.255
+
+do wr mem
+
+========R4========
+en
+conf t
+host R4-CDN
+
+int loop0
+ip add 4.4.4.4 255.255.255.255
+no sh
+
+
+int g0/2
+ip add 13.13.13.2 255.255.255.252
+no sh 
+
+int g0/3
+ip add 17.17.17.2 255.255.255.252
+no sh 
+
+int g0/0
+ip add 14.14.14.2 255.255.255.252 
+no sh 
+
+
+router bgp 400
+neigh 13.13.13.1 remote-as 300
+neigh 17.17.17.1 remote-as 100
+neigh 14.14.14.1 remote-as 500
+
+networ 4.4.4.4 mask 255.255.255.255
+
+
+do wr mem
+
+
+========R5========
+en
+conf t
+host R5-CDN
+
+int loop0
+ip add 5.5.5.5 255.255.255.255
+no sh
+
+
+int g0/0
+ip add 14.14.14.1 255.255.255.252
+no sh 
+
+int g0/1
+ip add 19.19.19.1 255.255.255.252
+no sh 
+
+int g0/2
+ip add 15.15.15.2 255.255.255.252 
+no sh 
+
+int g0/3
+ip add 21.21.21.2 255.255.255.252
+no sh
+
+router bgp 500
+neigh 14.14.14.2 remote-as 400
+neigh 15.15.15.1 remote-as 600
+neigh 19.19.19.2 remote-as 200
+neigh 21.21.21.1 remote-as 328594
+
+networ 5.5.5.5 mask 255.255.255.255
+
+do wr mem
+
+=========R6=============
+
+en
+conf t
+host R6-CDN
+
+int loop0
+ip add 6.6.6.6 255.255.255.255
+no sh
+
+
+int g0/0
+ip add 18.18.18.2 255.255.255.252
+no sh 
+
+int g0/1
+ip add 16.16.16.2 255.255.255.252
+no sh 
+
+int g0/2
+ip add 15.15.15.1 255.255.255.252 
+no sh 
+
+
+router bgp 600
+neigh 16.16.16.1 remote-as 100
+neigh 18.18.18.1 remote-as 300
+neigh 15.15.15.2 remote-as 500
+
+networ 6.6.6.6 mask 255.255.255.255
+
+do wr mem
+
+
+========R-Camtel========
+en
+conf t
+host R-CAMTEL
+
+int g0/0
+ip add 192.168.1.21 255.255.255.à
+no sh 
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+ip add 20.20.20.1 255.255.255.252
+no sh
+
+router bgp 15964
+neigh 20.20.20.2 remote-as 300
+neigh 192.168.1.20 remote-as 37462
+neigh 192.168.1.20 timers 10 30
+neigh 192.168.1.20 fall-over bfd
+
+ex
+
+policy-map LIMIT-CAMTEL
+ class class-default
+  police 155000000
+
+int g0/0
+ service-policy output LIMIT-CAMTEL
+
+do wr mem
+
+
+========R-Safitel========
+en
+conf t
+host R-SAFITEL
+
+int g0/0
+ip add 41.242.152.37 255.255.255.252
+no sh 
+bfd interval 300 min_rx 300 multipl 3 
+
+int g0/3
+ip add 21.21.21.1 255.255.255.252
+no sh
+
+router bgp 328594
+neigh 21.21.21.2 remote-as 500
+neigh 41.242.152.38 remote-as 37462
+neigh 41.242.152.38 timers 10 30
+neigh 41.242.152.38 fall-over bfd
+
+ex
+
+policy-map LIMIT-SAFITEL
+ class class-default
+  police 600000000
+
+int g0/0
+ service-policy output LIMIT-SAFITEL
+
+do wr mem
+
+
+========ASR-CORE1========
+en
+conf t
+host ASR-CORE1
+
+int g0/0
+ip add 192.168.1.20 255.255.255.0
+no sh 
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+no ip add
+no sh
+
+int gi0/1.200
+description Gateway-BASE-CLIENT-1
+encapsulation dot1Q 200
+ip add 197.149.128.7 255.255.255.240
+
+vrrp 3 ip 197.149.128.1
+vrrp 3 prio 100
+no sh 
+
+int gi0/1.400
+description Gateway-BASE-CLIENT-2
+encapsulation dot1Q 400
+ip add 197.149.131.4 255.255.255.240
+
+vrrp 1 ip 197.149.131.1
+vrrp 1 prio 110
+vrrp 1 preempt
+no sh
+
+int gi0/1.900
+description RESEAU-INTERNE-PRESTABIST
+encapsulation dot1Q 900
+ip add 10.1.1.40 255.255.0.0
+no sh
+exit 
+
+route-map BASE-CLIENT1 permit 10
+set communi 37462:100 additi
+
+route-map BASE-CLIENT2 permit 10
+set communi 37462:200 additi
+
+route-map PREPEND-CAMTEL permit 10 
+set as-path prepend 37462 37462 37462
+
+exit
+
+ip access-list stand ACL-VIP 
+permit host 197.149.128.8
+permit host 197.149.128.9
+permit host 197.149.128.10
+permit host 197.149.128.11
+permit host 197.149.128.12
+permit host 197.149.128.13
+permit host 197.149.128.14
+permit host 197.149.131.5
+permit host 197.149.131.3
+
+
+exit
+
+class-map match-all CLASS-VIP 
+match acces-group name ACL-VIP 
+
+exit
+
+
+ip prefix-list CAMTEL-PREFERED seq 10 permit 3.3.3.3/32
+
+route-map RM-CAMTEL-IN permit 10
+match ip add prefix-list CAMTEL-PREFERED
+set local-preference 300
+exit
+
+route-map RM-CAMTEL-IN permit 20
+exit
+
+router bgp 37462
+neigh 192.168.1.21 remote-as 15964
+neigh 192.168.1.21 route-map PREPEND-CAMTEL out 
+neigh 192.168.1.21 route-map RM-CAMTEL-IN in
+neigh 192.168.1.21 timers 10 30
+neigh 192.168.1.21 fall-over bfd
+neigh 10.1.1.42 remote-as 37462
+neigh 10.1.1.42 description IBGP-VERS-ASR-CORE-3
+neigh 10.1.1.42 update-source gi0/1.900
+neigh 10.1.1.42 next-hop-self
+  
+
+netw 197.149.128.0 mask 255.255.255.0
+netw 197.149.131.0 mask 255.255.255.0
+netw 197.149.128.0 mask 255.255.255.0 route-map BASE-CLIENT1
+netw 197.149.131.0 mask 255.255.255.0 route-map BASE-CLIENT2
+
+ex
+
+track 1 int g0/1 line-protocol
+delay down 10 up 10
+
+ip route 197.149.128.0 255.255.255.0 Null0 track 1
+ip route 197.149.131.0 255.255.255.0 Null0 track 1
+
+policy-map QOS
+class CLASS-VIP
+prio 46000
+class class-default
+bandwidth 70000
+exit
+
+policy-map LIMIT-CAMTEL
+class class-default
+shape average 155000000
+service-policy QOS
+
+int g0/0
+service-policy output LIMIT-CAMTEL
+exit
+
+
+
+end
+clear ip bgp * soft 
+
+
+
+do wr mem
+
+=======ASR-CORE3==========
+en
+conf t
+host ASR-CORE3
+
+int g0/0
+ip add 41.242.152.38 255.255.255.252
+no sh 
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+no ip add
+no sh
+
+int gi0/1.200
+description Gateway-BASE-CLIENT-1
+encapsulation dot1Q 200
+ip add 197.149.128.4 255.255.255.240
+
+vrrp 3 ip 197.149.128.1
+vrrp 3 prio 110
+vrrp 3 preempt
+no sh 
+
+int gi0/1.400
+description Gateway-BASE-CLIENT-2
+encapsulation dot1Q 400
+ip add 197.149.131.2 255.255.255.240
+
+vrrp 1 ip 197.149.131.1
+vrrp 1 prio 100
+no sh  
+
+
+int gi0/1.900
+description RESEAU-INTERNE-PRESTABIST
+encapsulation dot1Q 900
+ip add 10.1.1.42 255.255.0.0
+no sh 
+
+exit
+
+route-map BASE-CLIENT1 permit 10
+set communi 37462:100 addit
+
+route-map BASE-CLIENT2 permit 10
+set communi 37462:200 addit
+
+exit
+
+ip access-list stand ACL-VIP 
+permit host 197.149.128.8
+permit host 197.149.128.9
+permit host 197.149.128.10
+permit host 197.149.128.11
+permit host 197.149.128.12
+permit host 197.149.128.13
+permit host 197.149.128.14
+permit host 197.149.131.5
+permit host 197.149.131.3
+
+
+exit
+
+class-map match-all CLASS-VIP 
+match access-group name ACL-VIP 
+
+exit
+
+ip prefix-list SAFITEL-PREFERED seq 10 permit 1.1.1.1/32
+ip prefix-list SAFITEL-PREFERED seq 20 permit 8.8.8.8/32
+ip prefix-list SAFITEL-PREFERED seq 30 permit 5.5.5.5/32
+
+route-map RM-SAFITEL-IN permit 10
+match ip address prefix-list SAFITEL-PREFERED
+set local-preference 300
+exit
+
+route-map RM-SAFITEL-IN permit 20
+exit
+
+
+
+router bgp 37462
+neigh 41.242.152.37 remote-as 328594
+neigh 41.242.152.37 timers 10 30
+neigh 41.242.152.37 fall-over bfd
+neighbor 41.242.152.37 route-map RM-SAFITEL-IN in
+neigh 10.1.1.40 remote-as 37462
+neigh 10.1.1.40 description IBGP-VERS-ASR-CORE-1
+neigh 10.1.1.40 update-source gi0/1.900
+neighbor 10.1.1.40 next-hop-self
+
+
+
+netw 197.149.128.0 mask 255.255.255.0
+netw 197.149.131.0 mask 255.255.255.0
+netw 197.149.128.0 mask 255.255.255.0 route-map BASE-CLIENT1
+netw 197.149.131.0 mask 255.255.255.0 route-map BASE-CLIENT2
+
+
+track 1 int g0/1 line-protocol
+delay down 10 up 10
+
+ip route 197.149.128.0 255.255.255.0 Null0 track 1
+ip route 197.149.131.0 255.255.255.0 Null0 track 1
+
+exit
+
+policy-map QOS
+class CLASS-VIP
+prio 180000
+class class-default
+bandwidth 270000
+exit
+
+policy-map LIMIT-SAFITEL
+class class-default
+shape average 600000000
+service-policy QOS
+
+int g0/0
+service-policy output LIMIT-SAFITEL
+exit
+
+clear ip bgp * soft 
+
+
+do wr mem
+
+re
+
+
+======SW1-MOURSAL========
+en 
+conf t
+host SW1-MOURSAL
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int ran gi0/0-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+do wr mem
+
+======SW2-MOURSAL========
+en 
+conf t
+host SW2-MOURSAL
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int ran gi0/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+
+do wr mem
+
+======SW3-BOLOLO========
+en 
+conf t
+host SW3-BOLOLO
+
+vlan 200
+name VLAN200
+vlan 400
+name VLAN400
+vlan 900
+name VLAN900
+
+int ran gi0/0-2, gi1/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/0-1
+sh
+channel-group 1 mode active 
+no sh 
+
+int po1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+
+do wr mem
+
+======SW4-BOLOLO========
+en 
+conf t
+host SW4-BOLOLO
+
+vlan 200
+name VLAN200
+vlan 400
+name VLAN400
+vlan 900
+name VLAN900
+
+int ran gi0/0-3, gi1/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/2-3
+sh
+channel-group 2 mode active 
+no sh 
+
+int po2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+
+do wr mem
+
+======R-VIP========
+en 
+conf t
+host R-VIP
+
+ip routing
+
+!route de secours pour le trafic utilisateur
+ip route 0.0.0.0 0.0.0.0 197.149.128.1
+
+vlan 200 
+name VLAN200
+
+vlan 400 
+name VLAN400
+
+vlan 900 
+name VLAN900
+
+int ran gi0/0
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int vlan 200
+ip add 197.149.128.9 255.255.255.240
+no sh 
+
+int vlan 400
+ip add 197.149.131.3 255.255.255.240
+no sh 
+
+int vlan 900 
+ip add 10.1.1.22 255.255.0.0
+no sh
+
+ip access-list standard ACL-LOCAL-BASE1
+ permit 197.149.128.0 0.0.0.15
+ip access-list standard ACL-LOCAL-BASE2
+ permit 197.149.131.0 0.0.0.15
+
+route-map PBR-LOCAL permit 10
+ match ip address ACL-LOCAL-BASE1
+ set ip next-hop 197.149.128.1
+route-map PBR-LOCAL permit 20
+ match ip address ACL-LOCAL-BASE2
+ set ip next-hop 197.149.131.1
+
+ip local policy route-map PBR-LOCAL
+
+
+do wr mem
+
+======R-BRAS========
+en 
+conf t
+host R-BRAS
+
+ip routing 
+
+ip route 0.0.0.0 0.0.0.0 197.149.128.1
+
+vlan 200 
+name VLAN200
+
+vlan 400 
+name VLAN400
+
+vlan 900 
+name VLAN900
+
+int vlan 200
+ip add 197.149.128.2 255.255.255.240
+no sh 
+
+int vlan 400
+ip add 197.149.131.6 255.255.255.240
+no sh 
+
+int vlan 900 
+ip add 10.1.1.11 255.255.0.0
+no sh
+
+int ran gi0/0-3, 
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/0-1
+sh
+channel-group 1 mode active 
+no sh 
+
+int po1
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/2-3
+sh
+channel-group 2 mode active 
+no sh 
+
+int po2
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+exit
+
+ip access-list standard ACL-LOCAL-BASE1
+ permit 197.149.128.0 0.0.0.15
+ip access-list standard ACL-LOCAL-BASE2
+ permit 197.149.131.0 0.0.0.15
+
+route-map PBR-LOCAL permit 10
+ match ip address ACL-LOCAL-BASE1
+ set ip next-hop 197.149.128.1
+route-map PBR-LOCAL permit 20
+ match ip address ACL-LOCAL-BASE2
+ set ip next-hop 197.149.131.1
+
+ip local policy route-map PBR-LOCAL
+
+
+do wr mem
+
+
+
+
+!nb sur modification, pas tenir en compte, encore ne phase de test
+
+
+no logging console
+no logging monitor
+
+
+! Étape 1 : Créer un objet de tracking pour l'interface vers SAFITEL
+track 1 interface GigabitEthernet0/0 line-protocol
+ delay down 10 up 10
+
+! Étape 2 : Lier la route statique au tracking
+ip route 197.149.128.0 255.255.255.0 Null0 track 1
+ip route 197.149.131.0 255.255.255.0 Null0 track 1
+
+
+no ip route 197.149.128.0 255.255.255.0 Null0
+no ip route 197.149.131.0 255.255.255.0 Null0 
+
+
+
+! ASR-CORE-1 — supprimer tout VRRP
+int gi0/1.200
+ no vrrp 200
+ no vrrp 400
+ 
+int gi0/1.400
+ no vrrp 200
+ no vrrp 400
+
+! ASR-CORE-3 — idem
+int gi0/1.200
+ no vrrp 1
+ no vrrp 3
+ no vrrp 200
+
+int gi0/1.400
+ no vrrp 1
+ no vrrp 3
+ no vrrp 400
+
+!utiliser pour forcer les trafic du routeur a passer par leur passerel respectives pour pouvoir faire des tests plus adéquats et tester les PL, en production, on compare ca a des PC ayant leur adresses de gateway config
+
+en
+conf t
+ip access-list standard ACL-LOCAL-BASE1
+ permit 197.149.128.0 0.0.0.15
+ip access-list standard ACL-LOCAL-BASE2
+ permit 197.149.131.0 0.0.0.15
+
+route-map PBR-LOCAL permit 10
+ match ip address ACL-LOCAL-BASE1
+ set ip next-hop 197.149.128.1
+route-map PBR-LOCAL permit 20
+ match ip address ACL-LOCAL-BASE2
+ set ip next-hop 197.149.131.1
+
+ip local policy route-map PBR-LOCAL
+
+
+
+
+!pour la config manuelle des basculements de Camtel vers Safitel 
+
+!sur CORE1
+en
+conf t
+router bgp 37462
+ neighbor 192.168.1.21 shutdown
+end
+clear ip bgp * soft
+
+!De Safitel vers Camtel, sur core3 
+
+en 
+conf t
+router bgp 37462
+neigh 41.242.152.37 shutdown
+end
+
+clear ip bgp * soft  !actualiser toutes les sessions BGP sans les coupé 
+
+
+no route-map BASE-CLIENT1 permit 10
+no route-map BASE-CLIENT2 permit 10
+no route-map LP-SAFITEL permit 10
+router bgp 37462
+no netw 197.149.128.0 mask 255.255.255.0 route-map BASE-CLIENT1
+no netw 197.149.131.0 mask 255.255.255.0 route-map BASE-CLIENT2
+no neigh 41.242.152.37 route-map LP-SAFITEL in
+
+
+no route-map BASE-CLIENT1 permit 10
+no route-map BASE-CLIENT2 permit 10
+no route-map LP-CAMTEL permit 10
+router bgp 37462
+no netw 197.149.128.0 mask 255.255.255.0 route-map BASE-CLIENT1
+no netw 197.149.131.0 mask 255.255.255.0 route-map BASE-CLIENT2
+no neigh 192.168.1.21 route-map LP-CAMTEL in
+
+
+
+
+en
+conf t
+
+router bgp 37462
+end
+
+clear ip bgp * soft in
+wr mem
+
+
+
+
+
+
+
+
+
+
+
+
