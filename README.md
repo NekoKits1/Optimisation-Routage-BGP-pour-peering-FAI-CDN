@@ -1,6 +1,6 @@
 # Optimisation du Routage BGP pour le Peering FAI-CDN : Architecture Dual-Upstream
 
-**[Consulter le rapport d'ingénierie complet (PDF)](./docs/Rapport_Audrey_Kitio.pdf)**
+**[Consulter le rapport d'ingénierie complet (PDF)](./Rapport_Audrey_Kitio.pdf)**
 
 ## Présentation du Projet
 Ce projet présente l'audit, la conception et l'implémentation d'une architecture réseau optimisée basée sur le protocole BGP. Il simule un environnement de télécommunications réel où un opérateur (AS 37462) est interconnecté à Internet via deux liaisons physiques asymétriques : 
@@ -13,7 +13,7 @@ L'objectif de cette étude est de corriger les défaillances structurelles d'une
 
 ## Topologie et Architecture (Simulation sous EVE-NG)
 
-![Topologie de l'architecture sous EVE-NG](./images/topologie_EVE-NG.png)
+![Topologie de l'architecture sous EVE-NG](./topologie_EVE-NG.png)
 
 L'architecture s'articule autour de :
 * **Routeurs de cœur de réseau :** ASR-CORE1 et ASR-CORE3 assurant les annonces BGP externes (eBGP) et internes (iBGP).
@@ -56,16 +56,8 @@ L'implémentation de cette ingénierie de trafic a permis d'atteindre l'ensemble
 
 ---
 
-## Structure du Dépôt
-
-* `/docs/` : Contient le rapport d'ingénierie complet au format PDF, justifiant méthodologiquement les choix techniques.
-* `/configs/` : Contient les configurations brutes extraites des équipements de cœur de réseau et des routeurs frontaliers (ASR-CORE1, ASR-CORE3, R-CAMTEL, R-SAFITEL).
-* `/images/` : Contient les schémas de topologie réseau et les captures de validation.
-
----
-
 ## Instructions de Simulation
 1. Disposer d'un émulateur réseau (EVE-NG ou GNS3) avec des images Cisco IOS compatibles.
-2. Reproduire l'architecture physique conformément à l'image de topologie présente dans `/images/`.
-3. Importer les configurations du dossier `/configs/` vers les routeurs correspondants.
+2. Reproduire l'architecture physique conformément à l'image de topologie.
+3. Importer les configurations vers les routeurs correspondants.
 4. Vérifier la convergence via la commande `show ip bgp summary` et tester les mécanismes de failover en simulant une coupure d'interface sur l'un des liens externes.
