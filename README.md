@@ -15,7 +15,6 @@ Audit, conception et implémentation d'une architecture réseau basée sur BGP, 
 - **Distribution/accès** : commutateurs et routeurs de passerelle segmentés par VLAN
 - **Simulateurs FAI/CDN** : routeurs représentant Internet et les réseaux de diffusion de contenu
 
-*(topologie et export EVE-NG à joindre ici)*
 
 ---
 
