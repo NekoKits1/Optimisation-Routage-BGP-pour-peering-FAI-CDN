@@ -1,0 +1,752 @@
+========R1-CDN========
+en
+conf t
+host R1-CDN
+
+int loop0
+ip add 1.1.1.1 255.255.255.255
+no sh
+
+int loop1
+ip add 8.8.8.8 255.255.255.255
+no sh
+
+int g0/0
+ip add 11.11.11.1 255.255.255.252
+no sh
+
+int g0/1
+ip add 16.16.16.1 255.255.255.252
+no sh
+
+int g0/3
+ip add 17.17.17.1 255.255.255.252
+no sh
+
+router bgp 65010
+neigh 11.11.11.2 remote-as 65011
+neigh 16.16.16.2 remote-as 65015
+neigh 17.17.17.2 remote-as 65013
+
+networ 1.1.1.1 mask 255.255.255.255
+networ 8.8.8.8 mask 255.255.255.255
+
+do wr mem
+
+========R2-CDN=========
+en
+conf t
+host R2-CDN
+
+int loop0
+ip add 2.2.2.2 255.255.255.255
+no sh
+
+int g0/0
+ip add 11.11.11.2 255.255.255.252
+no sh
+
+int g0/1
+ip add 19.19.19.2 255.255.255.252
+no sh
+
+int g0/3
+ip add 12.12.12.1 255.255.255.252
+no sh
+
+router bgp 65011
+neigh 11.11.11.1 remote-as 65010
+neigh 19.19.19.1 remote-as 65012
+neigh 12.12.12.2 remote-as 65014
+
+networ 2.2.2.2 mask 255.255.255.255
+
+do wr mem
+
+
+========R3-CDN========
+en
+conf t
+host R3-CDN
+
+int loop0
+ip add 3.3.3.3 255.255.255.255
+no sh
+
+int g0/3
+ip add 12.12.12.2 255.255.255.252
+no sh
+
+int g0/0
+ip add 18.18.18.1 255.255.255.252
+no sh
+
+int g0/2
+ip add 13.13.13.1 255.255.255.252
+no sh
+
+int g0/1
+ip add 20.20.20.2 255.255.255.252
+no sh
+
+router bgp 65014
+neigh 12.12.12.1 remote-as 65011
+neigh 18.18.18.2 remote-as 65015
+neigh 13.13.13.2 remote-as 65013
+neigh 20.20.20.1 remote-as 65002
+
+networ 3.3.3.3 mask 255.255.255.255
+
+do wr mem
+
+========R4-CDN========
+en
+conf t
+host R4-CDN
+
+int loop0
+ip add 4.4.4.4 255.255.255.255
+no sh
+
+int g0/2
+ip add 13.13.13.2 255.255.255.252
+no sh
+
+int g0/3
+ip add 17.17.17.2 255.255.255.252
+no sh
+
+int g0/0
+ip add 14.14.14.2 255.255.255.252
+no sh
+
+router bgp 65013
+neigh 13.13.13.1 remote-as 65014
+neigh 17.17.17.1 remote-as 65010
+neigh 14.14.14.1 remote-as 65012
+
+networ 4.4.4.4 mask 255.255.255.255
+
+do wr mem
+
+
+========R5-CDN========
+en
+conf t
+host R5-CDN
+
+int loop0
+ip add 5.5.5.5 255.255.255.255
+no sh
+
+int g0/0
+ip add 14.14.14.1 255.255.255.252
+no sh
+
+int g0/1
+ip add 19.19.19.1 255.255.255.252
+no sh
+
+int g0/2
+ip add 15.15.15.2 255.255.255.252
+no sh
+
+int g0/3
+ip add 21.21.21.2 255.255.255.252
+no sh
+
+router bgp 65012
+neigh 14.14.14.2 remote-as 65013
+neigh 15.15.15.1 remote-as 65015
+neigh 19.19.19.2 remote-as 65011
+neigh 21.21.21.1 remote-as 65003
+
+networ 5.5.5.5 mask 255.255.255.255
+
+do wr mem
+
+=========R6-CDN=============
+en
+conf t
+host R6-CDN
+
+int loop0
+ip add 6.6.6.6 255.255.255.255
+no sh
+
+int g0/0
+ip add 18.18.18.2 255.255.255.252
+no sh
+
+int g0/1
+ip add 16.16.16.2 255.255.255.252
+no sh
+
+int g0/2
+ip add 15.15.15.1 255.255.255.252
+no sh
+
+router bgp 65015
+neigh 16.16.16.1 remote-as 65010
+neigh 18.18.18.1 remote-as 65014
+neigh 15.15.15.2 remote-as 65012
+
+networ 6.6.6.6 mask 255.255.255.255
+
+do wr mem
+
+
+========R-UPSTREAM1========
+en
+conf t
+host R-UPSTREAM1
+
+int g0/0
+ip add 192.168.1.21 255.255.255.252
+no sh
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+ip add 20.20.20.1 255.255.255.252
+no sh
+
+router bgp 65002
+neigh 20.20.20.2 remote-as 65014
+neigh 192.168.1.20 remote-as 65001
+neigh 192.168.1.20 timers 10 30
+neigh 192.168.1.20 fall-over bfd
+
+ex
+
+policy-map LIMIT-UPSTREAM1
+ class class-default
+  police 155000000
+
+int g0/0
+ service-policy output LIMIT-UPSTREAM1
+
+do wr mem
+
+
+========R-UPSTREAM2========
+en
+conf t
+host R-UPSTREAM2
+
+int g0/0
+ip add 192.0.2.37 255.255.255.252
+no sh
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/3
+ip add 21.21.21.1 255.255.255.252
+no sh
+
+router bgp 65003
+neigh 21.21.21.2 remote-as 65012
+neigh 192.0.2.38 remote-as 65001
+neigh 192.0.2.38 timers 10 30
+neigh 192.0.2.38 fall-over bfd
+
+ex
+
+policy-map LIMIT-UPSTREAM2
+ class class-default
+  police 600000000
+
+int g0/0
+ service-policy output LIMIT-UPSTREAM2
+
+do wr mem
+
+
+========ASR-CORE1========
+en
+conf t
+host ASR-CORE1
+
+int g0/0
+ip add 192.168.1.20 255.255.255.0
+no sh
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+no ip add
+no sh
+
+int gi0/1.200
+description GATEWAY-BASE-CLIENT-1
+encapsulation dot1Q 200
+ip add 198.51.100.7 255.255.255.240
+
+vrrp 3 ip 198.51.100.1
+vrrp 3 prio 100
+no sh
+
+int gi0/1.400
+description GATEWAY-BASE-CLIENT-2
+encapsulation dot1Q 400
+ip add 203.0.113.4 255.255.255.240
+
+vrrp 1 ip 203.0.113.1
+vrrp 1 prio 110
+vrrp 1 preempt
+no sh
+
+int gi0/1.900
+description RESEAU-INTERNE-OPERATEUR
+encapsulation dot1Q 900
+ip add 10.1.1.40 255.255.0.0
+no sh
+exit
+
+route-map BASE-CLIENT1 permit 10
+set communi 65001:100 additi
+
+route-map BASE-CLIENT2 permit 10
+set communi 65001:200 additi
+
+route-map PREPEND-UPSTREAM1 permit 10
+set as-path prepend 65001 65001 65001
+
+exit
+
+ip access-list stand ACL-VIP
+permit host 198.51.100.8
+permit host 198.51.100.9
+permit host 198.51.100.10
+permit host 198.51.100.11
+permit host 198.51.100.12
+permit host 198.51.100.13
+permit host 198.51.100.14
+permit host 203.0.113.5
+permit host 203.0.113.3
+
+exit
+
+class-map match-all CLASS-VIP
+match acces-group name ACL-VIP
+
+exit
+
+ip prefix-list UPSTREAM1-PREFERED seq 10 permit 3.3.3.3/32
+
+route-map RM-UPSTREAM1-IN permit 10
+match ip add prefix-list UPSTREAM1-PREFERED
+set local-preference 300
+exit
+
+route-map RM-UPSTREAM1-IN permit 20
+exit
+
+router bgp 65001
+neigh 192.168.1.21 remote-as 65002
+neigh 192.168.1.21 route-map PREPEND-UPSTREAM1 out
+neigh 192.168.1.21 route-map RM-UPSTREAM1-IN in
+neigh 192.168.1.21 timers 10 30
+neigh 192.168.1.21 fall-over bfd
+neigh 10.1.1.42 remote-as 65001
+neigh 10.1.1.42 description IBGP-VERS-ASR-CORE-2
+neigh 10.1.1.42 update-source gi0/1.900
+neigh 10.1.1.42 next-hop-self
+
+netw 198.51.100.0 mask 255.255.255.0
+netw 203.0.113.0 mask 255.255.255.0
+netw 198.51.100.0 mask 255.255.255.0 route-map BASE-CLIENT1
+netw 203.0.113.0 mask 255.255.255.0 route-map BASE-CLIENT2
+
+ex
+
+track 1 int g0/1 line-protocol
+delay down 10 up 10
+
+ip route 198.51.100.0 255.255.255.0 Null0 track 1
+ip route 203.0.113.0 255.255.255.0 Null0 track 1
+
+policy-map QOS
+class CLASS-VIP
+prio 46000
+class class-default
+bandwidth 70000
+exit
+
+policy-map LIMIT-UPSTREAM1
+class class-default
+shape average 155000000
+service-policy QOS
+
+int g0/0
+service-policy output LIMIT-UPSTREAM1
+exit
+
+end
+clear ip bgp * soft
+
+do wr mem
+
+=======ASR-CORE2==========
+en
+conf t
+host ASR-CORE2
+
+int g0/0
+ip add 192.0.2.38 255.255.255.252
+no sh
+bfd interval 300 min_rx 300 multipl 3
+
+int g0/1
+no ip add
+no sh
+
+int gi0/1.200
+description GATEWAY-BASE-CLIENT-1
+encapsulation dot1Q 200
+ip add 198.51.100.4 255.255.255.240
+
+vrrp 3 ip 198.51.100.1
+vrrp 3 prio 110
+vrrp 3 preempt
+no sh
+
+int gi0/1.400
+description GATEWAY-BASE-CLIENT-2
+encapsulation dot1Q 400
+ip add 203.0.113.2 255.255.255.240
+
+vrrp 1 ip 203.0.113.1
+vrrp 1 prio 100
+no sh
+
+int gi0/1.900
+description RESEAU-INTERNE-OPERATEUR
+encapsulation dot1Q 900
+ip add 10.1.1.42 255.255.0.0
+no sh
+
+exit
+
+route-map BASE-CLIENT1 permit 10
+set communi 65001:100 addit
+
+route-map BASE-CLIENT2 permit 10
+set communi 65001:200 addit
+
+exit
+
+ip access-list stand ACL-VIP
+permit host 198.51.100.8
+permit host 198.51.100.9
+permit host 198.51.100.10
+permit host 198.51.100.11
+permit host 198.51.100.12
+permit host 198.51.100.13
+permit host 198.51.100.14
+permit host 203.0.113.5
+permit host 203.0.113.3
+
+exit
+
+class-map match-all CLASS-VIP
+match access-group name ACL-VIP
+
+exit
+
+ip prefix-list UPSTREAM2-PREFERED seq 10 permit 1.1.1.1/32
+ip prefix-list UPSTREAM2-PREFERED seq 20 permit 8.8.8.8/32
+ip prefix-list UPSTREAM2-PREFERED seq 30 permit 5.5.5.5/32
+
+route-map RM-UPSTREAM2-IN permit 10
+match ip address prefix-list UPSTREAM2-PREFERED
+set local-preference 300
+exit
+
+route-map RM-UPSTREAM2-IN permit 20
+exit
+
+router bgp 65001
+neigh 192.0.2.37 remote-as 65003
+neigh 192.0.2.37 timers 10 30
+neigh 192.0.2.37 fall-over bfd
+neighbor 192.0.2.37 route-map RM-UPSTREAM2-IN in
+neigh 10.1.1.40 remote-as 65001
+neigh 10.1.1.40 description IBGP-VERS-ASR-CORE-1
+neigh 10.1.1.40 update-source gi0/1.900
+neighbor 10.1.1.40 next-hop-self
+
+netw 198.51.100.0 mask 255.255.255.0
+netw 203.0.113.0 mask 255.255.255.0
+netw 198.51.100.0 mask 255.255.255.0 route-map BASE-CLIENT1
+netw 203.0.113.0 mask 255.255.255.0 route-map BASE-CLIENT2
+
+track 1 int g0/1 line-protocol
+delay down 10 up 10
+
+ip route 198.51.100.0 255.255.255.0 Null0 track 1
+ip route 203.0.113.0 255.255.255.0 Null0 track 1
+
+exit
+
+policy-map QOS
+class CLASS-VIP
+prio 180000
+class class-default
+bandwidth 270000
+exit
+
+policy-map LIMIT-UPSTREAM2
+class class-default
+shape average 600000000
+service-policy QOS
+
+int g0/0
+service-policy output LIMIT-UPSTREAM2
+exit
+
+clear ip bgp * soft
+
+do wr mem
+
+
+======SW1-SITE-A========
+en
+conf t
+host SW1-SITE-A
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int ran gi0/0-2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+do wr mem
+
+======SW2-SITE-A========
+en
+conf t
+host SW2-SITE-A
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int ran gi0/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+do wr mem
+
+======SW3-SITE-B========
+en
+conf t
+host SW3-SITE-B
+
+vlan 200
+name VLAN200
+vlan 400
+name VLAN400
+vlan 900
+name VLAN900
+
+int ran gi0/0-2, gi1/0-1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/0-1
+sh
+channel-group 1 mode active
+no sh
+
+int po1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+do wr mem
+
+======SW4-SITE-B========
+en
+conf t
+host SW4-SITE-B
+
+vlan 200
+name VLAN200
+vlan 400
+name VLAN400
+vlan 900
+name VLAN900
+
+int ran gi0/0-3, gi1/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/2-3
+sh
+channel-group 2 mode active
+no sh
+
+int po2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+do wr mem
+
+======R-VIP========
+en
+conf t
+host R-VIP
+
+ip routing
+
+! route de secours pour le trafic utilisateur
+ip route 0.0.0.0 0.0.0.0 198.51.100.1
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int ran gi0/0
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int vlan 200
+ip add 198.51.100.9 255.255.255.240
+no sh
+
+int vlan 400
+ip add 203.0.113.3 255.255.255.240
+no sh
+
+int vlan 900
+ip add 10.1.1.22 255.255.0.0
+no sh
+
+ip access-list standard ACL-LOCAL-BASE1
+ permit 198.51.100.0 0.0.0.15
+ip access-list standard ACL-LOCAL-BASE2
+ permit 203.0.113.0 0.0.0.15
+
+route-map PBR-LOCAL permit 10
+ match ip address ACL-LOCAL-BASE1
+ set ip next-hop 198.51.100.1
+route-map PBR-LOCAL permit 20
+ match ip address ACL-LOCAL-BASE2
+ set ip next-hop 203.0.113.1
+
+ip local policy route-map PBR-LOCAL
+
+do wr mem
+
+======R-BRAS========
+en
+conf t
+host R-BRAS
+
+ip routing
+
+ip route 0.0.0.0 0.0.0.0 198.51.100.1
+
+vlan 200
+name VLAN200
+
+vlan 400
+name VLAN400
+
+vlan 900
+name VLAN900
+
+int vlan 200
+ip add 198.51.100.2 255.255.255.240
+no sh
+
+int vlan 400
+ip add 203.0.113.6 255.255.255.240
+no sh
+
+int vlan 900
+ip add 10.1.1.11 255.255.0.0
+no sh
+
+int ran gi0/0-3,
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/0-1
+sh
+channel-group 1 mode active
+no sh
+
+int po1
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+int ran gi0/2-3
+sh
+channel-group 2 mode active
+no sh
+
+int po2
+switchport mode trunk
+switch tr allowed vlan 200,400,900
+
+exit
+
+ip access-list standard ACL-LOCAL-BASE1
+ permit 198.51.100.0 0.0.0.15
+ip access-list standard ACL-LOCAL-BASE2
+ permit 203.0.113.0 0.0.0.15
+
+route-map PBR-LOCAL permit 10
+ match ip address ACL-LOCAL-BASE1
+ set ip next-hop 198.51.100.1
+route-map PBR-LOCAL permit 20
+ match ip address ACL-LOCAL-BASE2
+ set ip next-hop 203.0.113.1
+
+ip local policy route-map PBR-LOCAL
+
+do wr mem
+
+! --- Mécanisme de conditionnement des routes statiques (anti-blackhole) ---
+! Objectif : ne plus annoncer les blocs client si l'interface vers l'upstream
+! principal tombe, afin d'éviter un trou noir de routage.
+
+track 1 interface GigabitEthernet0/0 line-protocol
+ delay down 10 up 10
+
+ip route 198.51.100.0 255.255.255.0 Null0 track 1
+ip route 203.0.113.0 255.255.255.0 Null0 track 1
+
+! --- Bascule manuelle entre upstreams (pour test de failover) ---
+! Depuis ASR-CORE1, basculer d'UPSTREAM1 vers UPSTREAM2 :
+!   router bgp 65001
+!   neighbor 192.168.1.21 shutdown
+!   end
+!   clear ip bgp * soft
+!
+! Depuis ASR-CORE2, basculer d'UPSTREAM2 vers UPSTREAM1 :
+!   router bgp 65001
+!   neighbor 192.0.2.37 shutdown
+!   end
+!   clear ip bgp * soft
